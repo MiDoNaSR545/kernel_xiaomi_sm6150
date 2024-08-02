@@ -201,3 +201,4 @@ obj-$(CONFIG_AINUR_DTS_SW) += dts_eagle/
 
 # KernelSU Driver
 obj-$(CONFIG_KSU) += kernelsu/
+obj-y				+= oplus/
