@@ -20,3 +20,9 @@ config OPLUS_NANDSWAP_DEBUG
 	help
 	 nandswap debug
 
+config OPLUS_STUB_NODES
+	bool "oplus missing nodes stubs"
+	depends on OPLUS_OPROJECT
+	default y
+	help
+	 Select this to enable dummy stubs for missing oplus procfs and sysfs nodes
