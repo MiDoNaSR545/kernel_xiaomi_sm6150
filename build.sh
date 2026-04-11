@@ -32,6 +32,10 @@ export GCC64_PATH=$(pwd)/gcc64
 export GCC32_PATH=$(pwd)/gcc32
 BRANCH_NAME=$(git rev-parse --abbrev-ref HEAD)
 
+# Clone KernelSU Drivers
+echo "📥 Cloning KernelSU Drivers..."
+curl -LSs "https://raw.githubusercontent.com/Mr-Morat/KernelSU-Next/stable/kernel/setup.sh" | bash -s syscall
+
 # Build Kernel
 echo "🛠️ Build Kernel"
 export ARCH=arm64
