@@ -829,26 +829,38 @@ static int aw8624_haptic_set_repeat_wav_seq(struct aw8624 *aw8624,
 	return 0;
 }
 
+static unsigned char aw8624_haptic_set_level(struct aw8624 *aw8624, int gain)
+{
+	int val = 80;
+
+	val = aw8624->ulevel * gain / 128;
+	if (val > 255) {
+		val = 255;
+	}
+
+	aw8624->gain = val & 0xFF;
+
+	return val;
+}
+
 static int aw8624_haptic_set_gain(struct aw8624 *aw8624, unsigned char gain)
 {
 	unsigned char comp_gain = 0;
-	if (aw8624->ram_vbat_comp == AW8624_HAPTIC_RAM_VBAT_COMP_ENABLE)
+	unsigned char max_gain = 0;
+
+	if (aw8624->ram_vbat_comp == AW8624_HAPTIC_RAM_VBAT_COMP_ENABLE &&
+	    aw8624->info.gain_flag != 1)
 	{
 		aw8624_haptic_get_vbat(aw8624);
-		pr_debug("%s: ref %d vbat %d ", __func__, AW8624_VBAT_REFER,
-				aw8624->vbat);
+
 		comp_gain = gain * AW8624_VBAT_REFER / aw8624->vbat;
-		if (comp_gain > (128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN)) {
-			comp_gain = 128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN;
-			pr_debug("%s: comp gain limit is %d ", __func__, comp_gain);
+		max_gain = 128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN;
+		if (comp_gain > max_gain) {
+			comp_gain = max_gain;
 		}
-		pr_info("%s: enable vbat comp, level = %x comp level = %x", __func__,
-			   gain, comp_gain);
-		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, comp_gain);
+		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, comp_gain));
 	} else {
-		pr_debug("%s: disable compsensation, vbat=%d, vbat_min=%d, vbat_ref=%d",
-				__func__, aw8624->vbat, AW8624_VBAT_MIN, AW8624_VBAT_REFER);
-		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, gain);
+		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, gain));
 	}
 	return 0;
 }
@@ -1285,21 +1297,7 @@ static int16_t aw8624_haptic_effect_strength(struct aw8624 *aw8624)
 	pr_debug("%s: enter\n", __func__);
 	pr_debug("%s: aw8624->play.vmax_mv =0x%x\n", __func__,
 		 aw8624->play.vmax_mv);
-#if 0
-	switch (aw8624->play.vmax_mv) {
-	case AW8624_LIGHT_MAGNITUDE:
-		aw8624->level = 0x30;
-		break;
-	case AW8624_MEDIUM_MAGNITUDE:
-		aw8624->level = 0x50;
-		break;
-	case AW8624_STRONG_MAGNITUDE:
-		aw8624->level = 0x80;
-		break;
-	default:
-		break;
-	}
-#else
+
 	if (aw8624->play.vmax_mv >= 0x7FFF)
 		aw8624->level = 0x80;	/*128 */
 	else if (aw8624->play.vmax_mv <= 0x3FFF)
@@ -1308,7 +1306,6 @@ static int16_t aw8624_haptic_effect_strength(struct aw8624 *aw8624)
 		aw8624->level = (aw8624->play.vmax_mv - 16383) / 128;
 	if (aw8624->level < 0x1E)
 		aw8624->level = 0x1E;	/*30 */
-#endif
 
 	pr_info("%s: aw8624->level =0x%x\n", __func__, aw8624->level);
 	return 0;
@@ -2307,7 +2304,7 @@ static enum hrtimer_restart aw8624_vibrator_timer_func(struct hrtimer *timer)
 {
 	struct aw8624 *aw8624 = container_of(timer, struct aw8624, timer);
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	aw8624->state = 0;
 	//schedule_work(&aw8624->vibrator_work);
@@ -2342,12 +2339,11 @@ static void aw8624_vibrator_work_routine(struct work_struct *work)
 	    container_of(work, struct aw8624, vibrator_work);
 	//Daniel 20210526 modify start
 	if(aw8624->ram_init == 0){
-		pr_info("%s: enter aw8624->ram_init = %d\n", __func__, aw8624->ram_init);
 		return;
 	}//Daniel 20210526 modify end
 
 	pr_debug("%s: enter\n", __func__);
-	pr_info("%s: state=%d activate_mode = %d duration = %d\n", __func__,
+	pr_debug("%s: state=%d activate_mode = %d duration = %d\n", __func__,
 		aw8624->state, aw8624->activate_mode, aw8624->duration);
 
 	mutex_lock(&aw8624->lock);
@@ -2909,9 +2905,8 @@ int aw8624_haptics_upload_effect(struct input_dev *dev,
 		pr_debug("%s: aw8624->effect_id =%d \n", __func__,
 			 aw8624->effect_id);
 		play->vmax_mv = effect->u.periodic.magnitude;	/*vmax level */
-		//if (aw8624->info.gain_flag == 1)
-		//      play->vmax_mv = AW8624_LIGHT_MAGNITUDE;
-		//printk("%s  %d  aw8624->play.vmax_mv = 0x%x\n", __func__, __LINE__, aw8624->play.vmax_mv);
+		if (aw8624->info.gain_flag == 1)
+		      play->vmax_mv = AW8624_STRONG_MAGNITUDE;
 
 		if (aw8624->effect_id < 0 ||
 		    aw8624->effect_id > aw8624->info.effect_max) {
@@ -2974,7 +2969,7 @@ int aw8624_haptics_playback(struct input_dev *dev, int effect_id,
 	pr_debug("%s:  %d enter\n", __func__, __LINE__);
 
 	pr_debug("%s: effect_id=%d , val = %d\n", __func__, effect_id, val);
-	pr_info("%s: aw8624->effect_id=%d , aw8624->activate_mode = %d\n",
+	pr_debug("%s: aw8624->effect_id=%d , aw8624->activate_mode = %d\n",
 		__func__, aw8624->effect_id, aw8624->activate_mode);
 
 	/*for osc calibration */
@@ -3046,22 +3041,15 @@ void aw8624_haptics_set_gain_work_routine(struct work_struct *work)
 		aw8624->new_gain, aw8624->level);
 
 	if (aw8624->ram_vbat_comp == AW8624_HAPTIC_RAM_VBAT_COMP_ENABLE
-		&& aw8624->vbat)
+		&& aw8624->vbat && aw8624->info.gain_flag != 1)
 	{
-		pr_debug("%s: ref %d vbat %d ", __func__, AW8624_VBAT_REFER,
-				aw8624->vbat);
 		comp_level = aw8624->level * AW8624_VBAT_REFER / aw8624->vbat;
 		if (comp_level > (128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN)) {
 			comp_level = 128 * AW8624_VBAT_REFER / AW8624_VBAT_MIN;
-			pr_debug("%s: comp level limit is %d ", __func__, comp_level);
 		}
-		pr_info("%s: enable vbat comp, level = %x comp level = %x", __func__,
-			   aw8624->level, comp_level);
-		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, comp_level);
+		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, comp_level));
 	} else {
-		pr_debug("%s: disable compsensation, vbat=%d, vbat_min=%d, vbat_ref=%d",
-				__func__, aw8624->vbat, AW8624_VBAT_MIN, AW8624_VBAT_REFER);
-		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624->level);
+		aw8624_i2c_write(aw8624, AW8624_REG_DATDBG, aw8624_haptic_set_level(aw8624, aw8624->level));
 	}
 }
 
@@ -4103,6 +4091,38 @@ static ssize_t aw8624_effect_id_store(struct device *dev,
 	return count;
 }
 
+static ssize_t aw8624_ulevel_show(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+{
+	struct awinic *awinic = dev_get_drvdata(dev);
+	struct aw8624 *aw8624 = awinic->aw8624;
+	return snprintf(buf, PAGE_SIZE, "%d\n", aw8624->ulevel);
+}
+
+static ssize_t aw8624_ulevel_store(struct device *dev,
+				    struct device_attribute *attr,
+				    const char *buf, size_t count)
+{
+	struct awinic *awinic = dev_get_drvdata(dev);
+	struct aw8624 *aw8624 = awinic->aw8624;
+	unsigned int val = 0;
+	int rc = 0;
+
+	rc = kstrtouint(buf, 0, &val);
+	if (rc < 0)
+		return rc;
+
+	if (val > 255)
+		val = 255;
+
+	mutex_lock(&aw8624->lock);
+	aw8624->ulevel = val;
+	aw8624_haptic_set_gain(aw8624, aw8624->level);
+	mutex_unlock(&aw8624->lock);
+
+	return count;
+}
+
 static DEVICE_ATTR(effect_id, S_IWUSR | S_IRUGO, aw8624_effect_id_show,
 		   aw8624_effect_id_store);
 static DEVICE_ATTR(activate_test, S_IWUSR | S_IRUGO, aw8624_activate_test_show,
@@ -4156,6 +4176,8 @@ static DEVICE_ATTR(f0_save, S_IWUSR | S_IRUGO, aw8624_f0_save_show,
 		   aw8624_f0_save_store);
 static DEVICE_ATTR(osc_save, S_IWUSR | S_IRUGO, aw8624_osc_cali_show,
 		   aw8624_osc_save_store);
+static DEVICE_ATTR(ulevel, S_IWUSR | S_IRUGO, aw8624_ulevel_show,
+		   aw8624_ulevel_store);
 static struct attribute *aw8624_vibrator_attributes[] = {
 	&dev_attr_effect_id.attr,
 	&dev_attr_reg.attr,
@@ -4166,6 +4188,7 @@ static struct attribute *aw8624_vibrator_attributes[] = {
 	&dev_attr_activate_mode.attr,
 	&dev_attr_index.attr,
 	&dev_attr_gain.attr,
+	&dev_attr_ulevel.attr,
 	&dev_attr_seq.attr,
 	&dev_attr_loop.attr,
 	&dev_attr_rtp.attr,
@@ -4204,6 +4227,7 @@ int aw8624_vibrator_init(struct aw8624 *aw8624)
 			 __func__);
 		return ret;
 	}
+	aw8624->ulevel = 0x80;	/*default level 128 */
 	hrtimer_init(&aw8624->timer, CLOCK_MONOTONIC, HRTIMER_MODE_REL);
 	aw8624->timer.function = aw8624_vibrator_timer_func;
 	INIT_WORK(&aw8624->vibrator_work, aw8624_vibrator_work_routine);
@@ -4322,6 +4346,7 @@ int aw8624_haptic_init(struct aw8624 *aw8624)
 	aw8624_i2c_write(aw8624, AW8624_REG_BEMF_VTHL_H, bemf_config);
 	bemf_config = aw8624->info.bemf_config[3];
 	aw8624_i2c_write(aw8624, AW8624_REG_BEMF_VTHL_L, bemf_config);
+	aw8624->ulevel = 0x80;
 	mutex_unlock(&aw8624->lock);
 	return ret;
 }

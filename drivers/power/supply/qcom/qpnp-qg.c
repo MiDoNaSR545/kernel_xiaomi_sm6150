@@ -2880,13 +2880,24 @@ static int qg_input_status_update(struct qpnp_qg *chip)
 {
 	bool usb_present = is_usb_present(chip);
 	bool dc_present = is_dc_present(chip);
+	bool was_present = chip->usb_present || chip->dc_present;
+	bool now_present = usb_present || dc_present;
 
 	if ((chip->usb_present != usb_present) ||
 		(chip->dc_present != dc_present)) {
 		qg_dbg(chip, QG_DEBUG_STATUS,
 			"Input status changed usb_present=%d dc_present=%d\n",
 						usb_present, dc_present);
-		qg_scale_soc(chip, false);
+		/*
+		 * On charger insertion, force an immediate SOC update so the
+		 * displayed percentage reflects the real FG value right away
+		 * instead of slowly walking 1% per 40 seconds toward it.
+		 * On removal, use smooth scaling to avoid sudden SOC jumps.
+		 */
+		if (!was_present && now_present)
+			qg_scale_soc(chip, true);
+		else
+			qg_scale_soc(chip, false);
 	}
 
 	chip->usb_present = usb_present;

@@ -143,7 +143,7 @@ enum aw8624_haptic_cmd {
 
 enum aw8624_haptic_strength {
 	AW8624_LIGHT_MAGNITUDE = 0x3fff,
-	AW8624_MEDIUM_MAGNITUDE = 0x5fff,
+	AW8624_MEDIUM_MAGNITUDE = 0x6fff,
 	AW8624_STRONG_MAGNITUDE = 0x7fff,
 };
 
@@ -265,6 +265,7 @@ struct aw8624 {
 	u16 new_gain;
 	int f0_value;
 	unsigned char level;
+	unsigned char ulevel;
 
 	unsigned char seq[AW8624_SEQUENCER_SIZE];
 	unsigned char loop[AW8624_SEQUENCER_SIZE];

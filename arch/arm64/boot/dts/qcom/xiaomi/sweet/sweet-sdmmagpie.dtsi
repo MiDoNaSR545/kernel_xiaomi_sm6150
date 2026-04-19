@@ -263,8 +263,8 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		/*---------------------aw8624_dts_info---------------------*/
 		aw8624_vib_f0_pre = < 2050 >;
 		aw8624_vib_f0_cali_percen = < 7 >;
-		aw8624_vib_cont_drv_lev = < 106 >;
-		aw8624_vib_cont_drv_lvl_ov = < 155 >;
+		aw8624_vib_cont_drv_lev = < 120 >;
+		aw8624_vib_cont_drv_lvl_ov = < 200 >;
 		aw8624_vib_cont_td = < 0xF06C >;
 		aw8624_vib_cont_zc_thr = < 0x08F8 >;
 		aw8624_vib_cont_num_brk = < 3 >;
@@ -272,9 +272,9 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		aw8624_vib_duration_time = < 15 60 0 0 0 >;
 		aw8624_vib_brake_ram_config = < 1 1 90 60 20 3 1 3 1 1 90 60 30 5 1 3 0 0 50 40 25 0 5 3 >;
 		aw8624_vib_brake_cont_config = < 1 1 90 42 20 5 2 2 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 >;
-		aw8624_vib_f0_trace_parameter = < 9 5 1 15 >;
+		aw8624_vib_f0_trace_parameter = < 12 6 1 15 >;
 		aw8624_vib_bemf_config = < 0 8 3 0xf8 >;
-		aw8624_vib_sw_brake = < 0x2c >;
+		aw8624_vib_sw_brake = < 0x34 >;
 		aw8624_vib_wavseq = < 0 1 1 2 0 0 0 0 0 0 0 0 0 0 0 0 >; /*wavseq1-seq8 0x07-0x0E*/
 		aw8624_vib_wavloop = < 0 6 1 15 0 0 0 0 0 0>;/*loop1-mainloog 0x0f-0x13*/
 		aw8624_vib_td_brake = < 42720 42720 42720 >; /*level0 level1 level2*/
@@ -288,13 +288,13 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		aw8622x_vib_f0_pre = < 2050 >;
 		aw8622x_vib_f0_cali_percen = < 7 >;
 		aw8622x_vib_cont_drv1_lvl = < 0x7F >;
-		aw8622x_vib_cont_drv2_lvl = < 0x3A >;
-		aw8622x_vib_cont_brk_time = < 0x06 >;
+		aw8622x_vib_cont_drv2_lvl = < 0x5a >;
+		aw8622x_vib_cont_brk_time = < 0x0a >;
 		aw8622x_vib_cont_tset = < 0x06 >;
 		aw8622x_vib_cont_bemf_set = < 0x02 >;
 		aw8622x_vib_cont_drv_width = < 0x56 >;
-		aw8622x_vib_cont_wait_num = < 0x06 >;
-		aw8622x_vib_cont_brk_gain = < 0x08 >;
+		aw8622x_vib_cont_wait_num = < 0x04 >;
+		aw8622x_vib_cont_brk_gain = < 0x0c >;
 		aw8622x_vib_cont_drv1_time = < 0x08 >;
 		aw8622x_vib_cont_drv2_time = < 0x14 >;
 		aw8622x_vib_cont_track_margin = < 0x0F >;
@@ -327,25 +327,25 @@ And public attribution of xiaomi platforms(like F3 and so and)
 			/*CLICK*/
 			qcom,effect-id = <0>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [3e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [7f];
+			qcom,wf-brake-pattern = [06 04 02 00];
+			qcom,wf-play-rate-us = <8000>;
 		};
 		wf_1 {
 			/*DOUBLE CLICK*/
 			qcom,effect-id = <1>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [7e 3e];
-			qcom,wf-brake-pattern = [03 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [7f 00 7f];
+			qcom,wf-brake-pattern = [06 04 02 00];
+			qcom,wf-play-rate-us = <8000>;
 		};
 		wf_2 {
 			/*TICK*/
 			qcom,effect-id = <2>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [7e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [5f];
+			qcom,wf-brake-pattern = [05 02 00 00];
+			qcom,wf-play-rate-us = <5000>;
 		};
 		wf_3 {
 			/*THUD*/
@@ -358,50 +358,50 @@ And public attribution of xiaomi platforms(like F3 and so and)
 		wf_4 {
 			/*POP*/
 			qcom,effect-id = <4>;
-			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [3e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <28000>;
+			qcom,wf-vmax-mv = <3500>;
+			qcom,wf-pattern = [5f];
+			qcom,wf-brake-pattern = [06 04 02 00];
+			qcom,wf-play-rate-us = <10000>;
 		};
 		wf_5 {
 			/*HEAVY CLICK*/
 			qcom,effect-id = <5>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [7e 7e 7e];
-			qcom,wf-brake-pattern = [03 03 01 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [7f 7f];
+			qcom,wf-brake-pattern = [08 06 04 02];
+			qcom,wf-play-rate-us = <10000>;
 		};
 		wf_6 {
-			/*id 6*/
+			/*id 6 - LIGHT TICK*/
 			qcom,effect-id = <6>;
-			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [3e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-vmax-mv = <3400>;
+			qcom,wf-pattern = [4f];
+			qcom,wf-brake-pattern = [04 02 00 00];
+			qcom,wf-play-rate-us = <5000>;
 		};
 		wf_7 {
-			/*id 7*/
+			/*id 7 - SHARP CLICK*/
 			qcom,effect-id = <7>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [3e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [7f];
+			qcom,wf-brake-pattern = [06 04 02 00];
+			qcom,wf-play-rate-us = <6000>;
 		};
 		wf_8 {
-			/*id 8*/
+			/*id 8 - SHORT THUD*/
 			qcom,effect-id = <8>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [3e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [6f 3f];
+			qcom,wf-brake-pattern = [05 03 01 00];
+			qcom,wf-play-rate-us = <12000>;
 		};
 		wf_9 {
-			/*id 9*/
+			/*id 9 - CRISPY POP*/
 			qcom,effect-id = <9>;
 			qcom,wf-vmax-mv = <3600>;
-			qcom,wf-pattern = [3e 3e];
-			qcom,wf-brake-pattern = [02 01 00 00];
-			qcom,wf-play-rate-us = <20000>;
+			qcom,wf-pattern = [7f];
+			qcom,wf-brake-pattern = [07 05 03 01];
+			qcom,wf-play-rate-us = <9000>;
 		};
 	};
 	/* AWINIC AW8624 Haptic End */

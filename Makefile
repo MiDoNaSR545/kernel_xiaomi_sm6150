@@ -368,7 +368,7 @@ HOST_LFS_CFLAGS := $(shell getconf LFS_CFLAGS 2>/dev/null)
 HOST_LFS_LDFLAGS := $(shell getconf LFS_LDFLAGS 2>/dev/null)
 HOST_LFS_LIBS := $(shell getconf LFS_LIBS 2>/dev/null)
 
-ifneq ($(LLVM),)
+ifneq ($(LLVM),0)
 HOSTCC	= clang
 HOSTCXX	= clang++
 else
@@ -388,7 +388,7 @@ endif
 
 # Make variables (CC, etc...)
 CPP		= $(CC) -E
-ifneq ($(LLVM),)
+ifneq ($(LLVM),0)
 CC		= clang
 LD		= ld.lld
 AR		= llvm-ar
@@ -767,6 +767,12 @@ KBUILD_CFLAGS	+= $(call cc-disable-warning, format-overflow)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, int-in-bool-context)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, address-of-packed-member)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, attribute-alias)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, packed-not-aligned)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, psabi)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, restrict)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-overflow)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-truncation)
+KBUILD_CFLAGS	+= $(call cc-disable-warning, zero-length-bounds)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, stringop-overread)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, array-compare)
 KBUILD_CFLAGS	+= $(call cc-disable-warning, address)
@@ -777,10 +783,6 @@ else ifdef CONFIG_CC_OPTIMIZE_FOR_PERFORMANCE_O3
 KBUILD_CFLAGS   += -O3 -ffast-math
 else ifdef CONFIG_CC_OPTIMIZE_FOR_SIZE
 KBUILD_CFLAGS   += -Os
-ifeq ($(cc-name),clang)
-KBUILD_CFLAGS += -mcpu=cortex-a76+crc+crypto -mtune=cortex-a76 -march=armv8.2-a+crc+crypto+lse+rdm+rcpc+dotprod -O3 -funroll-loops
-KBUILD_AFLAGS += -mcpu=cortex-a76+crc+crypto -mtune=cortex-a76 -march=armv8.2-a+crc+crypto+lse+rdm+rcpc+dotprod -O3 -funroll-loops
-endif
 
 ifdef CONFIG_LLVM_POLLY
 KBUILD_CFLAGS	+= -mllvm -polly \

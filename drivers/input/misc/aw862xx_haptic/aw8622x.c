@@ -795,30 +795,37 @@ static void aw8622x_interrupt_clear(struct aw8622x *aw8622x)
 }
 
 //Daniel 20210716 modify start
+static unsigned char aw8622x_haptic_set_level(struct aw8622x *aw8622x, int gain)
+{
+	int val = 80;
+
+	val = aw8622x->ulevel * gain / 128;
+	if (val > 255) {
+		val = 255;
+	}
+
+	aw8622x->gain = val & 0xFF;
+
+	return val;
+}
+
 static int aw8622x_haptic_set_gain(struct aw8622x *aw8622x, unsigned char gain)
 {
 	unsigned char comp_gain = 0;
+	unsigned char max_gain = 0;
+
 	if (aw8622x->ram_vbat_compensate == AW8622X_HAPTIC_RAM_VBAT_COMP_ENABLE)
 	{
 		aw8622x_haptic_get_vbat(aw8622x);
-		pr_debug("%s: ref %d vbat %d ", __func__, AW8622X_VBAT_REFER,
-				aw8622x->vbat);
-		comp_gain =
-			    aw8622x->gain * AW8622X_VBAT_REFER / aw8622x->vbat;
-			if (comp_gain >
-			    (128 * AW8622X_VBAT_REFER / AW8622X_VBAT_MIN)) {
-				comp_gain =
-				    128 * AW8622X_VBAT_REFER / AW8622X_VBAT_MIN;
-				aw_dev_dbg(aw8622x->dev, "%s gain limit=%d\n",
-					   __func__, comp_gain);
-			}
-		pr_info("%s: enable vbat comp, level = %x comp level = %x", __func__,
-			   gain, comp_gain);
-		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, comp_gain);
+
+		comp_gain = gain * AW8622X_VBAT_REFER / aw8622x->vbat;
+		max_gain = 128 * AW8622X_VBAT_REFER / AW8622X_VBAT_MIN;
+		if (comp_gain > max_gain) {
+			comp_gain = max_gain;
+		}
+		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, aw8622x_haptic_set_level(aw8622x, comp_gain));
 	} else {
-		pr_debug("%s: disable compsensation, vbat=%d, vbat_min=%d, vbat_ref=%d",
-		__func__, aw8622x->vbat, AW8622X_VBAT_MIN, AW8622X_VBAT_REFER);
-		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, gain);
+		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, aw8622x_haptic_set_level(aw8622x, gain));
 	}
 	return 0;
 }
@@ -3000,6 +3007,38 @@ static ssize_t aw8622x_cali_show(struct device *dev,
 	return len;
 }
 
+static ssize_t aw8622x_ulevel_show(struct device *dev,
+				   struct device_attribute *attr, char *buf)
+{
+	struct awinic *awinic = dev_get_drvdata(dev);
+	struct aw8622x *aw8622x = awinic->aw8622x;
+	return snprintf(buf, PAGE_SIZE, "%d\n", aw8622x->ulevel);
+}
+
+static ssize_t aw8622x_ulevel_store(struct device *dev,
+				    struct device_attribute *attr,
+				    const char *buf, size_t count)
+{
+	struct awinic *awinic = dev_get_drvdata(dev);
+	struct aw8622x *aw8622x = awinic->aw8622x;
+	unsigned int val = 0;
+	int rc = 0;
+
+	rc = kstrtouint(buf, 0, &val);
+	if (rc < 0)
+		return rc;
+
+	if (val > 255)
+		val = 255;
+
+	mutex_lock(&aw8622x->lock);
+	aw8622x->ulevel = val;
+	aw8622x_haptic_set_gain(aw8622x, aw8622x->level);
+	mutex_unlock(&aw8622x->lock);
+
+	return count;
+}
+
 static ssize_t aw8622x_cali_store(struct device *dev,
 				  struct device_attribute *attr,
 				  const char *buf, size_t count)
@@ -3406,6 +3445,7 @@ static DEVICE_ATTR(sram_size, 0644, aw8622x_sram_size_show,
 static DEVICE_ATTR(osc_cali, 0644, aw8622x_osc_cali_show,
 		   aw8622x_osc_cali_store);
 static DEVICE_ATTR(gain, 0644, aw8622x_gain_show, aw8622x_gain_store);
+static DEVICE_ATTR(ulevel, 0644, aw8622x_ulevel_show, aw8622x_ulevel_store);
 static DEVICE_ATTR(ram_update, 0644, aw8622x_ram_update_show,
 		   aw8622x_ram_update_store);
 static DEVICE_ATTR(f0_save, 0644, aw8622x_f0_save_show, aw8622x_f0_save_store);
@@ -3443,6 +3483,7 @@ static struct attribute *aw8622x_vibrator_attributes[] = {
 	&dev_attr_activate_mode.attr,
 	&dev_attr_index.attr,
 	&dev_attr_gain.attr,
+	&dev_attr_ulevel.attr,
 	&dev_attr_seq.attr,
 	&dev_attr_loop.attr,
 	&dev_attr_register.attr,
@@ -3902,6 +3943,7 @@ int aw8622x_haptic_init(struct aw8622x *aw8622x)
 				AW8622X_BIT_TRIMCFG1_RL_TRIM_SRC_REG);
 	aw8622x_haptic_upload_lra(aw8622x, AW8622X_WRITE_ZERO);
 	aw8622x_haptic_f0_calibration(aw8622x);
+	aw8622x->ulevel = 0x80;
 	mutex_unlock(&aw8622x->lock);
 	return ret;
 }
@@ -4276,20 +4318,13 @@ void aw8622x_haptics_set_gain_work_routine(struct work_struct *work)
 	if (aw8622x->ram_vbat_comp == AW8622X_HAPTIC_RAM_VBAT_COMP_ENABLE
 		&& aw8622x->vbat)
 	{
-		pr_debug("%s: ref %d vbat %d ", __func__, AW8622X_VBAT_REFER,
-				aw8622x->vbat);
 		comp_level = aw8622x->level * AW8622X_VBAT_REFER / aw8622x->vbat;
 		if (comp_level > (128 * AW8622X_VBAT_REFER / AW8622X_VBAT_MIN)) {
 			comp_level = 128 * AW8622X_VBAT_REFER / AW8622X_VBAT_MIN;
-			pr_debug("%s: comp level limit is %d ", __func__, comp_level);
 		}
-		pr_info("%s: enable vbat comp, level = %x comp level = %x", __func__,
-			   aw8622x->level, comp_level);
-		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, comp_level);//Daniel 20210716
+		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, aw8622x_haptic_set_level(aw8622x, comp_level));
 	} else {
-		pr_debug("%s: disable compsensation, vbat=%d, vbat_min=%d, vbat_ref=%d",
-				__func__, aw8622x->vbat, AW8622X_VBAT_MIN, AW8622X_VBAT_REFER);
-		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, aw8622x->level);//Daniel 20210716
+		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG2, aw8622x_haptic_set_level(aw8622x, aw8622x->level));
 	}
 }
 

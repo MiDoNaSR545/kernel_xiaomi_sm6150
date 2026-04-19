@@ -295,6 +295,7 @@ struct aw8622x {
 
 	u16 new_gain;
 	unsigned char level;
+	unsigned char ulevel;
 	struct haptic_audio haptic_audio;
 	unsigned int osc_cali_run;
 	unsigned char ram_vbat_comp;
