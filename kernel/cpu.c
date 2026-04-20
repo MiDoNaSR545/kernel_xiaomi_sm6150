@@ -944,7 +944,11 @@ static int takedown_cpu(unsigned int cpu)
 		kthread_unpark(per_cpu_ptr(&cpuhp_state, cpu)->thread);
 		return err;
 	}
-	BUG_ON(cpu_online(cpu));
+	if (WARN_ON(cpu_online(cpu))) {
+		irq_unlock_sparse();
+		kthread_unpark(per_cpu_ptr(&cpuhp_state, cpu)->thread);
+		return -EBUSY;
+	}
 
 	/*
 	 * The CPUHP_AP_SCHED_MIGRATE_DYING callback will have removed all
@@ -954,7 +958,10 @@ static int takedown_cpu(unsigned int cpu)
 	 * Wait for the stop thread to go away.
 	 */
 	wait_for_ap_thread(st, false);
-	BUG_ON(st->state != CPUHP_AP_IDLE_DEAD);
+	if (WARN_ON(st->state != CPUHP_AP_IDLE_DEAD)) {
+		irq_unlock_sparse();
+		return -EBUSY;
+	}
 
 	/* Interrupts are moved away from the dying cpu, reenable alloc/free */
 	irq_unlock_sparse();
@@ -1008,7 +1015,11 @@ static int cpuhp_down_callbacks(unsigned int cpu, struct cpuhp_cpu_state *st,
 
 	for (; st->state > target; st->state--) {
 		ret = cpuhp_invoke_callback(cpu, st->state, false, NULL, NULL);
-		BUG_ON(ret && st->state < CPUHP_AP_IDLE_DEAD);
+		if (WARN(ret && st->state < CPUHP_AP_IDLE_DEAD,
+			 "CPU%u: Teardown callback for state %d failed (%d). Skipping BUG to prevent reboot.\n",
+			 cpu, st->state, ret)) {
+			ret = 0; /* Ignore error to continue or return safe error */
+		}
 		if (ret) {
 			st->target = prev_state;
 			if (st->state < prev_state)

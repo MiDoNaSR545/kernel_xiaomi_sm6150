@@ -689,7 +689,7 @@ static int aw8622x_haptic_stop(struct aw8622x *aw8622x)
 	unsigned char reg_val = 0;
 	bool force_flag = true;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	aw8622x->play_mode = AW8622X_HAPTIC_STANDBY_MODE;
 	aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG4, 0x02);
 	while (cnt) {
@@ -789,7 +789,7 @@ static void aw8622x_interrupt_clear(struct aw8622x *aw8622x)
 {
 	unsigned char reg_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	aw8622x_i2c_read(aw8622x, AW8622X_REG_SYSINT, &reg_val);
 	aw_dev_dbg(aw8622x->dev, "%s: reg SYSINT=0x%02X\n", __func__, reg_val);
 }
@@ -845,7 +845,7 @@ static int aw8622x_haptic_ram_vbat_compensate(struct aw8622x *aw8622x,
 static int aw8622x_haptic_play_mode(struct aw8622x *aw8622x,
 				    unsigned char play_mode)
 {
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	switch (play_mode) {
 	case AW8622X_HAPTIC_STANDBY_MODE:
@@ -901,7 +901,7 @@ static int aw8622x_haptic_play_go(struct aw8622x *aw8622x, bool flag)
 {
 	unsigned char reg_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	if (flag == true) {
 		aw8622x_i2c_write(aw8622x, AW8622X_REG_PLAYCFG4, 0x01);
 		mdelay(2);
@@ -949,7 +949,7 @@ static int aw8622x_haptic_read_lra_f0(struct aw8622x *aw8622x)
 	unsigned int f0_reg = 0;
 	unsigned long f0_tmp = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	/* F_LRA_F0_H */
 	ret = aw8622x_i2c_read(aw8622x, AW8622X_REG_CONTRD14, &reg_val);
 	f0_reg = (f0_reg | reg_val) << 8;
@@ -978,7 +978,7 @@ static int aw8622x_haptic_read_cont_f0(struct aw8622x *aw8622x)
 	unsigned int f0_reg = 0;
 	unsigned long f0_tmp = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	ret = aw8622x_i2c_read(aw8622x, AW8622X_REG_CONTRD16, &reg_val);
 	f0_reg = (f0_reg | reg_val) << 8;
 	ret = aw8622x_i2c_read(aw8622x, AW8622X_REG_CONTRD17, &reg_val);
@@ -1005,7 +1005,7 @@ static int aw8622x_haptic_cont_get_f0(struct aw8622x *aw8622x)
 	bool get_f0_flag = false;
 	unsigned char brk_en_temp = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	aw8622x->f0 = aw8622x->dts_info.f0_ref;
 	/* enter standby mode */
 	aw8622x_haptic_stop(aw8622x);
@@ -1090,7 +1090,7 @@ static int aw8622x_haptic_rtp_init(struct aw8622x *aw8622x)
 	unsigned int buf_len = 0;
 	unsigned char glb_state_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	pm_qos_add_request(&aw8622x_pm_qos_req_vb, PM_QOS_CPU_DMA_LATENCY,
 			   AW8622X_PM_QOS_VALUE_VB);
 	aw8622x->rtp_cnt = 0;
@@ -1239,7 +1239,7 @@ static void aw8622x_rtp_work_routine(struct work_struct *work)
 	bool rtp_work_flag = false;
 	struct aw8622x *aw8622x = container_of(work, struct aw8622x, rtp_work);
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	if ((aw8622x->effect_id < aw8622x->dts_info.effect_id_boundary) &&
 	    (aw8622x->effect_id > aw8622x->dts_info.effect_max))
@@ -1377,7 +1377,7 @@ static int aw8622x_rtp_osc_calibration(struct aw8622x *aw8622x)
 	aw8622x->rtp_cnt = 0;
 	aw8622x->timeval_flags = 1;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	/* fw loaded */
 	ret = request_firmware(&rtp_file, aw8622x_rtp_name[0], aw8622x->dev);
 	if (ret < 0) {
@@ -1606,7 +1606,7 @@ static int aw8622x_container_update(struct aw8622x *aw8622x,
 	unsigned short check_sum = 0;
 #endif
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	mutex_lock(&aw8622x->lock);
 	aw8622x->ram.baseaddr_shift = 2;
 	aw8622x->ram.ram_shift = 4;
@@ -1741,7 +1741,7 @@ static void aw8622x_ram_loaded(const struct firmware *cont, void *context)
 
 	load_cont++;
 #endif
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	if (!cont) {
 		aw_dev_err(aw8622x->dev, "%s: failed to read %s\n", __func__,
 			   aw8622x_ram_name);
@@ -1849,7 +1849,7 @@ static enum hrtimer_restart aw8622x_vibrator_timer_func(struct hrtimer *timer)
 {
 	struct aw8622x *aw8622x = container_of(timer, struct aw8622x, timer);
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	aw8622x->state = 0;
 	schedule_work(&aw8622x->long_vibrate_work);
 
@@ -1859,7 +1859,7 @@ static enum hrtimer_restart aw8622x_vibrator_timer_func(struct hrtimer *timer)
 static int aw8622x_haptic_play_repeat_seq(struct aw8622x *aw8622x,
 					  unsigned char flag)
 {
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	if (flag) {
 		aw8622x_haptic_play_mode(aw8622x, AW8622X_HAPTIC_RAM_LOOP_MODE);
@@ -1871,7 +1871,7 @@ static int aw8622x_haptic_play_repeat_seq(struct aw8622x *aw8622x,
 static int aw8622x_haptic_trig_config(struct aw8622x *aw8622x)
 {
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	if (aw8622x->isUsedIntn == false) {
 		aw8622x_i2c_write_bits(aw8622x, AW8622X_REG_SYSCTRL2,
@@ -1891,7 +1891,7 @@ static int aw8622x_haptic_swicth_motor_protect_config(struct aw8622x *aw8622x,
 						      unsigned char addr,
 						      unsigned char val)
 {
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	if (addr == 1) {
 		aw8622x_i2c_write_bits(aw8622x, AW8622X_REG_DETCFG1,
 				       AW8622X_BIT_DETCFG1_PRCT_MODE_MASK,
@@ -1936,7 +1936,7 @@ static int aw8622x_haptic_f0_calibration(struct aw8622x *aw8622x)
 	unsigned int f0_cali_max =  aw8622x->dts_info.f0_ref *
 				(100 + aw8622x->dts_info.f0_cali_percent) / 100;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	/*
 	 * aw8622x_haptic_upload_lra(aw8622x, AW8622X_WRITE_ZERO);
 	 */
@@ -2000,7 +2000,7 @@ static int aw8622x_haptic_f0_calibration(struct aw8622x *aw8622x)
  *****************************************************/
 static int aw8622x_haptic_cont_config(struct aw8622x *aw8622x)
 {
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	/* work mode */
 	aw8622x_haptic_play_mode(aw8622x, AW8622X_HAPTIC_CONT_MODE);
@@ -2030,7 +2030,7 @@ static int aw8622x_haptic_cont_config(struct aw8622x *aw8622x)
 static int aw8622x_haptic_play_wav_seq(struct aw8622x *aw8622x,
 				       unsigned char flag)
 {
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	if (flag) {
 		aw8622x_haptic_play_mode(aw8622x, AW8622X_HAPTIC_RAM_MODE);
 		aw8622x_haptic_play_go(aw8622x, true);
@@ -2055,7 +2055,7 @@ static void aw8622x_vibrator_enable(struct timed_output_dev *dev, int value)
 {
 	struct aw8622x *aw8622x = container_of(dev, struct aw8622x, vib_dev);
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	mutex_lock(&aw8622x->lock);
 	aw8622x_haptic_stop(aw8622x);
 	if (value > 0) {
@@ -2079,7 +2079,7 @@ static void aw8622x_haptic_brightness_set(struct led_classdev *cdev,
 {
 	struct aw8622x *aw8622x = container_of(cdev, struct aw8622x, vib_dev);
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	if (!aw8622x->ram_init) {
 		aw_dev_err(aw8622x->dev, "%s: ram init failed, not allow to play!\n",
 		       __func__);
@@ -3574,7 +3574,7 @@ static void aw8622x_long_vibrate_work_routine(struct work_struct *work)
 	struct aw8622x *aw8622x = container_of(work, struct aw8622x,
 					       long_vibrate_work);
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	printk("%s: state=%d activate_mode = %d duration = %d\n", __func__,
 		aw8622x->state, aw8622x->activate_mode, aw8622x->duration);
@@ -3628,7 +3628,7 @@ int aw8622x_vibrator_init(struct aw8622x *aw8622x)
 {
 	int ret = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 #ifdef TIMED_OUTPUT
 	aw_dev_err(aw8622x->dev, "%s: TIMED_OUT FRAMEWORK!\n", __func__);
@@ -3697,7 +3697,7 @@ int aw8622x_vibrator_init(struct aw8622x *aw8622x)
 static void aw8622x_haptic_misc_para_init(struct aw8622x *aw8622x)
 {
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	aw8622x->cont_drv1_lvl = aw8622x->dts_info.cont_drv1_lvl_dt;
 	aw8622x->cont_drv2_lvl = aw8622x->dts_info.cont_drv2_lvl_dt;
 	aw8622x->cont_drv1_time = aw8622x->dts_info.cont_drv1_time_dt;
@@ -3796,7 +3796,7 @@ static int aw8622x_haptic_offset_calibration(struct aw8622x *aw8622x)
 	unsigned int cont = 2000;
 	unsigned char reg_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	aw8622x_haptic_raminit(aw8622x, true);
 
@@ -3841,7 +3841,7 @@ static void aw8622x_ram_work_routine(struct work_struct *work)
 	struct aw8622x *aw8622x = container_of(work, struct aw8622x,
 						ram_work.work);
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	aw8622x_ram_update(aw8622x);
 }
 
@@ -3849,7 +3849,7 @@ int aw8622x_ram_work_init(struct aw8622x *aw8622x)
 {
 	int ram_timer_val = 8000;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	INIT_DELAYED_WORK(&aw8622x->ram_work, aw8622x_ram_work_routine);
 	schedule_delayed_work(&aw8622x->ram_work,
 				msecs_to_jiffies(ram_timer_val));
@@ -3890,7 +3890,7 @@ int aw8622x_haptic_init(struct aw8622x *aw8622x)
 	unsigned char i = 0;
 	unsigned char reg_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	/* haptic audio */
 	aw8622x->haptic_audio.delay_val = 1;
 	aw8622x->haptic_audio.timer_val = 21318;
@@ -3952,7 +3952,7 @@ void aw8622x_interrupt_setup(struct aw8622x *aw8622x)
 {
 	unsigned char reg_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 
 	aw8622x_i2c_read(aw8622x, AW8622X_REG_SYSINT, &reg_val);
 
@@ -3992,7 +3992,7 @@ irqreturn_t aw8622x_irq(int irq, void *data)
 	unsigned int buf_len = 0;
 	unsigned char glb_state_val = 0;
 
-	aw_dev_err(aw8622x->dev, "%s enter\n", __func__);
+	aw_dev_dbg(aw8622x->dev, "%s enter\n", __func__);
 	atomic_set(&aw8622x->is_in_rtp_loop, 1);
 	aw8622x_i2c_read(aw8622x, AW8622X_REG_SYSINT, &reg_val);
 	aw_dev_err(aw8622x->dev, "%s: reg SYSINT=0x%02X\n", __func__, reg_val);

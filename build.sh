@@ -56,6 +56,7 @@ mv out/.config out/sweet_defconfig.txt
 
 # Prepare AnyKernel3
 echo "📂 Preparing AnyKernel3..."
+rm -rf AnyKernel3
 git clone --depth=1 https://github.com/MiDoNaSR545/anykernel3 AnyKernel3
 cp out/arch/arm64/boot/Image.gz AnyKernel3/Image.gz
 cp out/arch/arm64/boot/dtbo.img AnyKernel3/dtbo.img
@@ -64,5 +65,5 @@ cp out/arch/arm64/boot/dtb.img AnyKernel3/dtb.img
 # Create Flashable ZIP
 echo "📦 Creating flashable zip..."
 cd AnyKernel3
-zip -r "../StriXotic-MeMeDo-${BUILD_TIME}.zip" *
+zip -r "../StriXotic-MeMeDo-MIUI-OOS-${BUILD_TIME}.zip" *
 echo "✅ Build finished"

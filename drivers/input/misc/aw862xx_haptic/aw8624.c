@@ -359,7 +359,7 @@ static int aw8624_i2c_writes(struct aw8624 *aw8624,
 static void aw8624_rtp_loaded(const struct firmware *cont, void *context)
 {
 	struct aw8624 *aw8624 = context;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	if (!cont) {
 		pr_err("%s: failed to read %s\n", __func__,
@@ -389,7 +389,7 @@ static void aw8624_rtp_loaded(const struct firmware *cont, void *context)
 
 static int aw8624_rtp_update(struct aw8624 *aw8624)
 {
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	return request_firmware_nowait(THIS_MODULE, FW_ACTION_HOTPLUG,
 				       aw8624_rtp_name[aw8624->rtp_file_num],
@@ -403,7 +403,7 @@ static void aw8624_container_update(struct aw8624 *aw8624,
 	int i = 0;
 	unsigned int shift = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	mutex_lock(&aw8624->lock);
 
@@ -469,7 +469,7 @@ static void aw8624_ram_loaded(const struct firmware *cont, void *context)
 	int i = 0;
 	unsigned short check_sum = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	if (!cont) {
 		pr_err("%s: failed to read %s\n", __func__, aw8624_ram_name);
@@ -539,7 +539,7 @@ static void aw8624_ram_work_routine(struct work_struct *work)
 	struct aw8624 *aw8624 =
 	    container_of(work, struct aw8624, ram_work.work);
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	aw8624_ram_update(aw8624);
 
@@ -558,7 +558,7 @@ int aw8624_ram_init(struct aw8624 *aw8624)
 	aw8624->ram_init = 0;
 	aw8624->rtp_init = 0;
 
-	pr_info("%s enter.\n",__func__);
+	pr_debug("%s enter.\n",__func__);
 	if(aw8624_ram_data == NULL){
 		pr_err("%s: failed to read %s\n", __func__, aw8624_ram_name);
 		return -1;
@@ -740,7 +740,7 @@ aw8624_haptic_play_mode(struct aw8624 *aw8624, unsigned char play_mode)
 
 static int aw8624_haptic_play_go(struct aw8624 *aw8624, bool flag)
 {
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	if (flag == true) {
 		aw8624_i2c_write_bits(aw8624, AW8624_REG_GO,
@@ -974,7 +974,7 @@ static int aw8624_haptic_set_f0_preset(struct aw8624 *aw8624)
 {
 	unsigned int f0_reg = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	f0_reg = 1000000000 / (aw8624->info.f0_pre * aw8624->info.f0_coeff);
 	aw8624_i2c_write(aw8624, AW8624_REG_F_PRE_H,
@@ -992,7 +992,7 @@ static int aw8624_haptic_read_f0(struct aw8624 *aw8624)
 	unsigned int f0_reg = 0;
 	unsigned long f0_tmp = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	ret = aw8624_i2c_read(aw8624, AW8624_REG_F_LRA_F0_H, &reg_val);
 	f0_reg = (reg_val << 8);
@@ -1037,7 +1037,7 @@ static int aw8624_haptic_read_beme(struct aw8624 *aw8624)
 {
 	int ret = 0;
 	unsigned char reg_val = 0;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	ret = aw8624_i2c_read(aw8624, AW8624_REG_WAIT_VOL_MP, &reg_val);
 	aw8624->max_pos_beme = (reg_val << 0);
 	ret = aw8624_i2c_read(aw8624, AW8624_REG_WAIT_VOL_MN, &reg_val);
@@ -1480,7 +1480,7 @@ static int aw8624_rtp_osc_calibration(struct aw8624 *aw8624)
 	aw8624->timeval_flags = 1;
 	aw8624->osc_cali_flag = 1;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	/* fw loaded */
 	ret = request_firmware(&rtp_file,
 			       aw8624_rtp_name[0],
@@ -1722,7 +1722,7 @@ static void aw8624_haptic_audio_work_routine(struct work_struct *work)
 	struct aw8624 *aw8624 =
 	    container_of(work, struct aw8624, haptic_audio.work);
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	mutex_lock(&aw8624->haptic_audio.lock);
 	memcpy(&aw8624->haptic_audio.ctr,
@@ -1792,7 +1792,7 @@ static void aw8624_haptic_audio_work_routine(struct work_struct *work)
  *****************************************************/
 static int aw8624_haptic_cont(struct aw8624 *aw8624)
 {
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	/* work mode */
 	aw8624_haptic_play_mode(aw8624, AW8624_HAPTIC_CONT_MODE);
@@ -1879,7 +1879,7 @@ static int aw8624_haptic_get_f0(struct aw8624 *aw8624)
 	unsigned char d2scfg_val = 0;
 	unsigned int f0_cali_cnt = 50;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	aw8624->f0 = aw8624->info.f0_pre;
 
@@ -2001,7 +2001,7 @@ static int aw8624_haptic_f0_calibration(struct aw8624 *aw8624)
 	char f0_cali_lra = 0;
 	int f0_cali_step = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	aw8624->f0_cali_flag = AW8624_HAPTIC_CALI_F0;
 
@@ -2096,7 +2096,7 @@ static int aw8624_file_open(struct inode *inode, struct file *file)
 {
 	if (!try_module_get(THIS_MODULE))
 		return -ENODEV;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	file->private_data = (void *)g_aw8624;
 
 	return 0;
@@ -2105,7 +2105,7 @@ static int aw8624_file_open(struct inode *inode, struct file *file)
 static int aw8624_file_release(struct inode *inode, struct file *file)
 {
 	file->private_data = (void *)NULL;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	module_put(THIS_MODULE);
 
 	return 0;
@@ -2117,7 +2117,7 @@ static long aw8624_file_unlocked_ioctl(struct file *file, unsigned int cmd,
 	struct aw8624 *aw8624 = (struct aw8624 *)file->private_data;
 
 	int ret = 0;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	dev_info(aw8624->dev, "%s: cmd=0x%x, arg=0x%lx\n", __func__, cmd, arg);
 
 	mutex_lock(&aw8624->lock);
@@ -2146,7 +2146,7 @@ static ssize_t aw8624_file_read(struct file *filp, char *buff, size_t len,
 	int i = 0;
 	unsigned char reg_val = 0;
 	unsigned char *pbuff = NULL;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	mutex_lock(&aw8624->lock);
 
 	dev_info(aw8624->dev, "%s: len=%zu\n", __func__, len);
@@ -2193,7 +2193,7 @@ static ssize_t aw8624_file_write(struct file *filp, const char *buff,
 	int i = 0;
 	int ret = 0;
 	unsigned char *pbuff = NULL;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	pbuff = (unsigned char *)kzalloc(len, GFP_KERNEL);
 	if (pbuff == NULL) {
 		dev_err(aw8624->dev, "%s: alloc memory fail\n", __func__);
@@ -2276,7 +2276,7 @@ static enum hrtimer_restart qti_hap_stop_timer(struct hrtimer *timer)
 					     stop_timer);
 	int rc;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	aw8624->play.length_us = 0;
 	rc = aw8624_haptic_play_go(aw8624, false);	// qti_haptics_play(aw8624, false);
 	if (rc < 0)
@@ -2291,7 +2291,7 @@ static enum hrtimer_restart qti_hap_disable_timer(struct hrtimer *timer)
 					     hap_disable_timer);
 	int rc;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	rc = aw8624_haptic_play_go(aw8624, false);	//qti_haptics_module_en(aw8624, false);
 	if (rc < 0)
 		dev_err(aw8624->dev, "Disable haptics module failed, rc=%d\n",
@@ -2542,7 +2542,7 @@ int aw8624_parse_dt(struct device *dev, struct aw8624 *aw8624,
 	struct qti_hap_effect *effect;
 	int rc = 0, tmp, i = 0, j, m;
 
-	pr_info("%s:  enter\n", __func__);
+	pr_debug("%s:  enter\n", __func__);
 
 	val = of_property_read_u32(np, "aw8624_vib_mode", &aw8624->info.mode);
 	if (val != 0)
@@ -4020,7 +4020,7 @@ static ssize_t aw8624_osc_save_store(struct device *dev,
 	unsigned int val = 0;
 	int rc = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	rc = kstrtouint(buf, 0, &val);
 	if (rc < 0)
 		return rc;
@@ -4052,7 +4052,7 @@ static ssize_t aw8624_f0_save_store(struct device *dev,
 	unsigned int val = 0;
 	int rc = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	rc = kstrtouint(buf, 0, &val);
 	if (rc < 0)
 		return rc;
@@ -4218,7 +4218,7 @@ struct attribute_group aw8624_vibrator_attribute_group = {
 int aw8624_vibrator_init(struct aw8624 *aw8624)
 {
 	int ret = 0;
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 
 	ret = sysfs_create_group(&aw8624->i2c->dev.kobj,
 				 &aw8624_vibrator_attribute_group);
@@ -4250,7 +4250,7 @@ int aw8624_haptic_init(struct aw8624 *aw8624)
 	unsigned char reg_val = 0, reg_flag = 0;
 	unsigned char bemf_config = 0;
 
-	pr_info("%s: enter\n", __func__);
+	pr_debug("%s: enter\n", __func__);
 	g_aw8624 = aw8624;
 	ret = misc_register(&aw8624_haptic_misc);
 	if (ret) {
