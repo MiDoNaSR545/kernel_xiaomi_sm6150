@@ -28,7 +28,7 @@ unsigned long boosted_cpu_util(int cpu, struct sched_walt_cpu_load *walt_load);
 #define cpufreq_driver_fast_switch(x, y) 0
 #define cpufreq_enable_fast_switch(x)
 #define cpufreq_disable_fast_switch(x)
-#define LATENCY_MULTIPLIER			(1000)
+#define LATENCY_MULTIPLIER			(100)
 #define SUGOV_KTHREAD_PRIORITY	50
 
 struct sugov_tunables {
