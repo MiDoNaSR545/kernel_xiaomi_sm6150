@@ -113,14 +113,12 @@
 			trip1_cpu6 {
 				trip = <&pm6150l_trip1>;
 				cooling-device =
-					<&CPU6 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
+					<&CPU6 (THERMAL_MAX_LIMIT-1) (THERMAL_MAX_LIMIT-1)>;
 			};
 			trip1_cpu7 {
 				trip = <&pm6150l_trip1>;
 				cooling-device =
-					<&CPU7 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
+					<&CPU7 (THERMAL_MAX_LIMIT-1) (THERMAL_MAX_LIMIT-1)>;
 			};
 		};
 	};
@@ -181,14 +179,12 @@
 			soc_cpu6 {
 				trip = <&soc_trip>;
 				cooling-device =
-					<&CPU6 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
+					<&CPU6 (THERMAL_MAX_LIMIT-1) (THERMAL_MAX_LIMIT-1)>;
 			};
 			soc_cpu7 {
 				trip = <&soc_trip>;
 				cooling-device =
-					<&CPU7 THERMAL_MAX_LIMIT
-						THERMAL_MAX_LIMIT>;
+					<&CPU7 (THERMAL_MAX_LIMIT-1) (THERMAL_MAX_LIMIT-1)>;
 			};
 		};
 	};

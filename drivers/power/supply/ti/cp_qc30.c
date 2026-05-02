@@ -1047,8 +1047,12 @@ void cp_statemachine(unsigned int port)
 			pr_info("thermal or batt temp recovery...\n");
 			recovery = false;
 		} else {
-			pr_info("thermal(%d) too high or batt temp out of range\n", thermal_level);
-		}
+			static int last_logged_thermal = -1;
+			if (thermal_level != last_logged_thermal) {
+				pr_info("thermal(%d) too high or batt temp out of range\n", thermal_level);
+				last_logged_thermal = thermal_level;
+			}
+				}
 		cp_get_batt_capacity();
 #ifdef WT_COMPILE_FACTORY_VERSION
 		if (pm_state.capacity <= 60 && !recovery) {
