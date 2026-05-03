@@ -111,6 +111,18 @@ static int match_nearest_efficient_step(int freq,int maxstep,int *freq_table)
 
 static void do_freq_limit(struct sugov_policy *sg_policy, unsigned int *freq)
 {
+	int i;
+
+	if (!sg_policy->tunables->efficient_freq || !sg_policy->tunables->nefficient_freq)
+		return;
+	/* Efficient-frequency ladder disabled (all zero): do not clamp requests. */
+	for (i = 0; i < sg_policy->tunables->nefficient_freq; i++) {
+		if (sg_policy->tunables->efficient_freq[i])
+			break;
+	}
+	if (i == sg_policy->tunables->nefficient_freq)
+		return;
+
     if (*freq > sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step] && !sg_policy->first_hp_request_time) {
 	    /* First request */
 	    *freq = sg_policy->tunables->efficient_freq[sg_policy->tunables->current_step];
