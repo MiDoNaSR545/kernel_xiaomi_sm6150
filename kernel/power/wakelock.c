@@ -253,7 +253,12 @@ static bool should_block_wakelock(const char *name)
 	    name_has(name, "audio")       ||
 	    name_has(name, "music")       ||
 	    name_has(name, "player")      ||
-	    name_has(name, "video"))
+	    name_has(name, "video")       ||
+	    name_has(name, "timerfd")     ||
+	    name_has(name, "wlan")        ||
+	    name_has(name, "wifi")        ||
+	    name_has(name, "suspend")     ||
+	    name_has(name, "net"))
 		return false;
 
 	/* Aggressive list check (safe + extended) */
