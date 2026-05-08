@@ -230,9 +230,12 @@ static void dsi_bridge_pre_enable(struct drm_bridge *bridge)
 
 	atomic_set(&c_bridge->display->panel->esd_recovery_pending, 0);
 
-	if (c_bridge->display->is_prim_display && atomic_read(&prim_panel_is_on)) {
-		cancel_delayed_work_sync(&prim_panel_work);
-		__pm_relax(&prim_panel_wakelock);
+if (c_bridge->display->is_prim_display) {
+    cancel_delayed_work_sync(&prim_panel_work);
+}
+
+if (c_bridge->display->is_prim_display && atomic_read(&prim_panel_is_on)) {
+    __pm_relax(&prim_panel_wakelock);
 		if (c_bridge->display->panel->panel_mode == DSI_OP_VIDEO_MODE) {
 			pr_debug("skip set display config for video panel in fpc\n");
 			return;
@@ -301,13 +304,12 @@ int dsi_bridge_interface_enable(int timeout)
 {
 	int ret = 0;
 
-	ret = wait_event_timeout(resume_wait_q,
-		!atomic_read(&resume_pending),
-		msecs_to_jiffies(WAIT_RESUME_TIMEOUT));
-	if (!ret) {
-		pr_info("Primary fb resume timeout\n");
-		return -ETIMEDOUT;
-	}
+/*
+ * HWC3 Fix: Removed PM resume wait.
+ * This caused 2-3s wake delay as system resume
+ * takes 2-3s to complete. Panel can light up
+ * before PM core finishes resuming.
+ */
 
 	mutex_lock(&gbridge->base.lock);
 
