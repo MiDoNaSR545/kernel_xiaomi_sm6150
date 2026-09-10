@@ -67,6 +67,7 @@ struct perf_event_attr;
 struct file_handle;
 struct sigaltstack;
 union bpf_attr;
+struct clone_args;
 
 #include <linux/types.h>
 #include <linux/aio_abi.h>
@@ -889,6 +890,8 @@ asmlinkage long sys_clone(unsigned long, unsigned long, int __user *,
 #endif
 #endif
 
+asmlinkage long sys_clone3(struct clone_args __user *uargs, size_t size);
+
 asmlinkage long sys_execve(const char __user *filename,
 		const char __user *const __user *argv,
 		const char __user *const __user *envp);
@@ -967,5 +970,11 @@ static inline int ksys_fadvise64_64(int fd, loff_t offset, loff_t len,
 	return -EINVAL;
 }
 #endif
+extern long do_sys_ftruncate(unsigned int fd, loff_t length, int small);
+
+static inline long ksys_ftruncate(unsigned int fd, unsigned long length)
+{
+	return do_sys_ftruncate(fd, length, 1);
+}
 
 #endif

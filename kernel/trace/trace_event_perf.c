@@ -417,7 +417,7 @@ perf_ftrace_function_call(unsigned long ip, unsigned long parent_ip,
 {
 	struct perf_event *event;
 	struct ftrace_entry *entry;
-	struct hlist_head *head;
+	struct hlist_head head;
 	struct pt_regs regs;
 	int rctx;
 
