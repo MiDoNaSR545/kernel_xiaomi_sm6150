@@ -119,7 +119,6 @@ enum print_reason {
 #define QC3P5_VOTER			"QC3P5_VOTER"
 #define FCC_MAX_QC3P5_VOTER		"FCC_MAX_QC3P5_VOTER"
 
-#define BYPASS_VOTER			"BYPASS_VOTER"
 #define BOOST_BACK_STORM_COUNT	3
 #define WEAK_CHG_STORM_COUNT	8
 
@@ -143,9 +142,8 @@ enum print_reason {
 #ifdef CONFIG_K6_CHARGE
 #define PD_UNVERIFED_VOLTAGE		4450000
 #else
-#define PD_UNVERIFED_VOLTAGE		4450000
+#define PD_UNVERIFED_VOLTAGE		4400000
 #endif
-
 /* thermal micros */
 #define MAX_TEMP_LEVEL		25
 /* percent of ICL compared to base 5V for different PD voltage_min voltage */
@@ -159,7 +157,7 @@ enum print_reason {
 #define PD_MICRO_7P5V	7500000
 #define PD_MICRO_8P5V	8500000
 #define PD_MICRO_9V		9000000
-#define ICL_LIMIT_LEVEL_THR		15
+#define ICL_LIMIT_LEVEL_THR		4
 
 /* defined for qc2_unsupported */
 #define QC2_UNSUPPORTED_UA		1800000
@@ -196,7 +194,7 @@ enum print_reason {
 #define SDP_100_MA			100000
 #define SDP_CURRENT_UA			500000
 #define CDP_CURRENT_UA			1500000
-#define DCP_CURRENT_UA			2200000
+#define DCP_CURRENT_UA			2000000
 #define HVDCP_CURRENT_UA		3000000
 #define HVDCP_CLASS_B_CURRENT_UA		3100000
 #define HVDCP2_CURRENT_UA		1500000
@@ -209,7 +207,7 @@ enum print_reason {
 #define DCIN_ICL_MIN_UA			100000
 #define DCIN_ICL_MAX_UA			1500000
 #define DCIN_ICL_STEP_UA		100000
-#define SLOWLY_CHARGING_CURRENT		6000000
+#define SLOWLY_CHARGING_CURRENT		1000000
 #define FLOAT_CHARGER_UA		1000000
 #define SUSPEND_CURRENT_UA		2000
 
@@ -224,6 +222,7 @@ enum print_reason {
 #define MAX_COUNT_OF_IBAT_STEP			2
 #endif
 
+
 #define STEP_CHG_DELAYED_MONITOR_MS			15000
 #define STEP_CHG_DELAYED_QUICK_MONITOR_MS			5000
 #define STEP_CHG_DELAYED_START_MS			100
@@ -236,7 +235,11 @@ enum print_reason {
 
 /* ffc related */
 #define NON_FFC_VFLOAT_VOTER			"NON_FFC_VFLOAT_VOTER"
+#ifdef CONFIG_K6_CHARGE
 #define NON_FFC_VFLOAT_UV			4450000
+#else
+#define NON_FFC_VFLOAT_UV			4400000
+#endif
 
 #define CP_COOL_THRESHOLD		150
 #define CP_WARM_THRESHOLD		450
@@ -650,11 +653,11 @@ struct smb_charger {
 	struct delayed_work	role_reversal_check;
 	struct delayed_work	pr_swap_detach_work;
 	struct delayed_work	pr_lock_clear_work;
-        struct delayed_work     micro_usb_switch_work;
+    struct delayed_work     micro_usb_switch_work;
 	struct delayed_work	reg_work;
 	struct delayed_work	six_pin_batt_step_chg_work;
 	struct delayed_work	reduce_fcc_work;
-	struct delayed_work     status_report_work;
+	struct delayed_work	status_report_work;
 	struct delayed_work	thermal_setting_work;
 	struct delayed_work	reverse_boost_work;
 	struct delayed_work	fcc_taper_work;
